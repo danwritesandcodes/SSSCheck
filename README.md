@@ -8,4 +8,4 @@ a command reference document:
 * Spelling check
 * Style guide check against a custom collection of style rules
 
-For more information on this project, see the wiki at _____.
+For more information on this project, see the [wiki](https://github.com/danwritesandcodes/SSSCheck/wiki/1-Home).
