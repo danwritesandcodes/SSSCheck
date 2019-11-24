@@ -1,0 +1,6 @@
+inductor
+inductors
+json
+memristor
+memristors
+startpoint

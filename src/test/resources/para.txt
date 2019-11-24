@@ -1,0 +1,6 @@
+After creating the connection assessment partitions, you can use the AutoGen
+/startGUI command to start the graphcal user interface to perform connection
+assessment. Avoid using the AutoGenx command with no options. For black box
+designs, you apply different connection rules to the paths in the partition and
+adjust the number of inductors and memristors on a bus to reduce parametric
+variation.

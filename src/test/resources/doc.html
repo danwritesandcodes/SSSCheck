@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Connection Assessment</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="overview">Overview</h1>
+<p>Connection assessment is a methodology for examining, tuning, and repairing problematic paths in your design. The AutoGen tool supports connection assessment to identify paths which require additional inductors and memristors and experiment with the physical placement of these devices. The output of connection assessment is a recipe that specifies the connection name, device placement, constraints, and other information.</p>
+<p>You perform connection assessment in three stages:</p>
+<ul>
+<li><p>Identification: Find and group problematic paths</p></li>
+<li><p>Exploration: Create the recipe which contains the path, number of inductors and memristors, and other constraints</p></li>
+<li><p>Implementation: Modify the design by inserting the inductors and memristors needed to successfully manage variation</p></li>
+</ul>
+<h1 id="terminology-and-concepts">Terminology and Concepts</h1>
+<p>Connection assessment uses the following terminology:</p>
+<ul>
+<li><p>Connection rule : A user-defined rule that specifies the target parametric variation on a path</p></li>
+<li><p>Recommended inductors : A blue triangle marker that indicates where inductors are needed to meet the target parametric variation</p></li>
+<li><p>Virtual inductors : A green marker that indicates the location where an inductor will be inserted</p></li>
+</ul>
+<h1 id="exploration">Exploration</h1>
+<p>Exploration is the first phase of connection assessment. During this phase, you use the BuildConnectionAssessment command or the Connection Assessment tool in the GUI to identify problematic paths in your design and organize them into partitions. You can create your own criteria for organizing the connection paths, such as path width, paths that pass or fail parametric variation criteria, and so on. Paths can be sorted by different criteria, such as width, startpoint, and endpoint.</p>
+<p>Connection rules are created by using the SetConnectionRule command. You specify parameters to the command to use when performing parametric variation analysis on paths. These parameters determine the preferred inductor and memristor type, inductor and memristor spacing, and so on. Connection rules are saved in the design library.</p>
+<p>Do the following to create path assessments and connection rules in the design. To perform these tasks in the GUI with the Connection Assessment tool, start the tool with the <code>/connectionAssessmentGui</code> option.</p>
+<ol>
+<li><p>After starting the tool, use the BuildConnectionAssessment command with the <code>/genPaths</code> option to identify the paths:</p>
+<pre><code>BuildConnectionAssessment /genPaths
+</code></pre>
+<p>Alternatively, choose Detect &gt; Run from the Connection Assessment tool menu. The tool displays the list of paths in the Connection Path List under the Paths tab.</p></li>
+<li><p>Define the inductor, memristor, nominal inductor spacing, and nominal memristor spacing with the SetConnectionRule command.</p>
+<pre><code>SetConnectionRule Rule1 /useParam inductor /useValue ind1
+SetConnectionRule Rule1 /useParam memristor /useValue memres1
+SetConnectionRule Rule1 /useParam inductor_spacing /useValue 2.0
+SetConnectionRule Rule1 /useParam memristor_spacing /useValue 3.0
+</code></pre>
+<p>To specify unique connection rules for different regions, use the <code>/region</code> option with the SetConnectionRule command. This option is also supported by the GetConnectionRules, RemoveConnectionRules, ReportConnectionRules, and WriteConnectionRules commands.</p>
+<p>Alternatively, click the Rules tab in the Connection Assessment tool and complete the form to define a new connection rule. When finished, click Apply to create the rule.</p></li>
+<li><p>Apply the connection rule to a specific path with the ModifyConnection command</p>
+<pre><code>ModifyConnectionAssessment /changeRule Rule1 Path1
+</code></pre>
+<p>Alternatively, you can first set the connection rule, then apply it to the assessment by using the BuildConnectionAssessment <code>/useRule</code> command as follows.</p>
+<pre><code>BuildConnectionAssessment /genPaths /useRule Rule1
+</code></pre>
+<p>To apply the connection rule to specific paths by using the GUI, select the paths you want to modify, click the right mouse, and choose the rule name from the context menu.</p></li>
+<li><p>Divide the complete list of paths in the Main Bus List into smaller partitions. To do this, click the Other Settings tab, select the criteria for partitioning, and click Apply.</p>
+<p>The tool divides the list of paths into partitions. Click the Partitions tab to view the partitions.</p></li>
+<li><p>Save the partitions to a file by choosing Partitions &gt; Save Partitions to a File from the GUI.</p></li>
+</ol>
+<h1 id="connection-assessment">Connection Assessment</h1>
+<p>After creating the connection assessment partitions, you can use the GUI to perform connection assessment. During this phase, you apply different connection rules to the paths in the partition and adjust the number of inductors and memristors on a bus to reduce parametric variation. To perform connection assessment,</p>
+<ol>
+<li><p>Select a partition from the list. The partition name is based on the option you selected when you partitioned the original list of connection paths. In this example, the path names are identified by length.</p></li>
+<li><p>Select a path from the list of paths.</p>
+<p>The display updates to show the bus with recommended inductors. In this example, Path3 has a variation of 2.9. To reduce the variation, four inductors must be inserted. The blue triangles represent recommended inductor locations for the current bus and connection rule.</p></li>
+<li><p>(Optional) With the same path still selected, choose a new connection rule from the context menu.</p>
+<p>In this example, the number of recommended inductors decreases from four to two when you choose a new rule.</p></li>
+<li><p>Create a new assessment path by choosing Assessment &gt; New Assessment from the menu.</p>
+<p>The display updates to display anchor points (green stars).</p></li>
+<li><p>(Optional) Modify the assessment path by clicking the blue triangle and dragging it to its new location.</p></li>
+<li><p>Click Apply to commit the change.</p></li>
+<li><p>Repeat steps 2 through 6 until all connection paths are evaluated.</p></li>
+<li><p>Choose File &gt; Save Paths &gt; All from the menu to write out a JSON file that contains the updated connection assessments.</p></li>
+</ol>
+<p>Implementation</p>
+<p>During implementation, you apply the updated connection assessments to the design. The JSON file written during connection assessment contains the inductors and memristors you added during connection assessment. To implement the changes,</p>
+<ol>
+<li><p>Add the recommended inductors and memristors to the design as captured in the JSON connection assessment file.</p></li>
+<li><p>Run the design through master analysis a second time to implement the new inductors and generate an updated connection graph.</p></li>
+<li><p>Start the Connection Assessment tool and read in the analyzed design.</p></li>
+<li><p>Reload the partitions saved during the previous session .</p></li>
+<li><p>Choose Load Connection Assessment File to load the JSON file saved at the end of Connection Assessment.</p>
+<p>The tool updates the list of paths and displays the number of inductors and memristors added or deleted since the previous run.</p></li>
+</ol>
+<h1 id="connection-assessment-command-options">Connection Assessment Command Options</h1>
+<p>Options to the BuildConnectionAssessment command determine how the connection assessment is performed:</p>
+<ul>
+<li><p>Apply a specific connection rule when creating the paths with the <code>/useRule</code> option.</p>
+<pre><code>BuildConnectionAssessment /genPaths /useRule Rule1
+</code></pre></li>
+<li><p>Limit the detection to specific blocks at the startpoint or endpoint with the <code>/fromBlock</code> and <code>/toBlock</code> options.</p>
+<pre><code>BuildConnectionAssessment /fromBlock startBlock /toBlock endBlock
+</code></pre></li>
+<li><p>Specify a list of connection points on the blocks with the <code>/connectionPoints</code> option.</p>
+<pre><code>BuildConnectionAssessment /connectionPoints [p1 p2]
+</code></pre></li>
+<li><p>Remove all connection assessments with the <code>/removeAll</code> option.</p>
+<pre><code>BuildConnectionAssessment /removeAll
+</code></pre></li>
+</ul>
+<p>Options to the SetPathRule command specify the parameter to set. The ReadConnectionRules and WriteConnectionRules commands can be used to write out and read in connection rules.</p>
+<ul>
+<li><p>Specify the parameter with the <code>/useParam</code> option. Valid parameters for this command are: <code>inductorName</code>, <code>inductorSpacing</code>, <code>memristorName</code>, and <code>memristorSpacing</code>.</p></li>
+<li><p>Apply the rule to horizontal or vertical segments only with the <code>/horizontalValue</code> and <code>/verticalValue</code> options.</p>
+<pre><code>SetConnectionRule \
+   /horizontalValue 5 /verticalValue 6 Rule10
+</code></pre></li>
+<li><p>Apply the rule to all segments with the <code>/useValue</code> option.</p></li>
+<li><p>Remove parameter settings from a connection rule with the <code>/unset</code> and <code>/useParam</code> options.</p>
+<pre><code>SetConnectionRule /useParam inductor_spacing \
+   /useValue 10 Rule10 ReportConnectionRules reg_spacing_10  SetConnectionRule /unset \
+   /useParam inductor_spacing reg_spacing_10 ReportConnectionRules reg_spacing_10
+</code></pre></li>
+<li><p>Write out the current connection rules with the WriteConnectionRules command.</p>
+<p>The command writes out the nondefault SetConnectionRule commands to the connectionRules file. Use the <code>/script</code> option to write to a different file name. Use the <code>/useFormat</code> json option to write out the connection rules in JSON format.</p></li>
+<li><p>Read in JSON file with the ReadConnectionRules <code>/useFilename</code> command.</p>
+<p>This command reads in rules written by the WriteConnectionRules <code>/useFormat</code> json command.</p></li>
+</ul>
+</body>
+</html>

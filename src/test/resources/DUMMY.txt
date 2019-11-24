@@ -1,0 +1,4 @@
+# This is the golden command file
+
+DummyCommand /commandOption
+

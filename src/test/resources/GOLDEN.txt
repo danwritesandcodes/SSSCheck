@@ -1,0 +1,20 @@
+# This is the golden command file
+
+AutoGen /connectionAssessmentGui /batchFile
+
+BuildConnectionAssessment /connectionPoints /fromBlock /toBlock /genPaths /useRule /removeAll
+
+GetConnectionRules /setRegion
+
+ModifyConnectionAssessment /changeRule
+
+ReadConnectionRules  /useParam
+
+RemoveConnectionRules /setRegion
+
+ReportConnectionRules
+
+SetConnectionRule  /horizontalValue /verticalValue /useValue /unsetValue /useParam /setRegionName /scriptName
+
+WriteConnectionRules /setRegion /useFormat /useParam
+
