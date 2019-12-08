@@ -10,3 +10,4 @@ a command reference document:
 
 For more information on this project, see the [wiki](https://github.com/danwritesandcodes/SSSCheck/wiki).
 
+
